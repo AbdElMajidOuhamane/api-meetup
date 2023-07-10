@@ -30,15 +30,15 @@ const getSingleContact=asyncHandler(async(req,res)=>{
 
 const createContact =asyncHandler(async(req,res)=>{
     console.log(req.body)
-    const {name,email,phone}=req.body;
-    if(!name || !email ||!phone){
+    const {title,category,description}=req.body;
+    if(!title || !category ||!description){
         res.status(400);
         throw new Error("All fields are mandatory")
     }
     const contact=await Contact.create({
-        name,
-        email,
-        phone,
+        title,
+        category,
+        description,
         user_id:req.user.id
     })
     res.status(201).json(contact)

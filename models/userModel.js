@@ -13,7 +13,11 @@ const userSchema=mongoose.Schema({
     password:{
         type:String,
         required:[true,"Please add user password"],
-    }
+    },
+    invalidatedTokens: {
+        type: [String],
+        default: [],
+      },
 
 },
 {

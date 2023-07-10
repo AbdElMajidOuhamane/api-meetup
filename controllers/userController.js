@@ -78,10 +78,45 @@ const loginUser =asyncHandler(async (req,res)=>{
 
 
 const currentUser =asyncHandler(async (req,res)=>{
-    res.json(req.user);
+    const user=await User.findById(req.user.id)
+    user.password = undefined;
+    res.json(user);
+})
+
+
+//@desc Logout user
+//@route POST /api/user/logout
+//@access private
+
+const logOut =asyncHandler(async (req,res)=>{
+    
+    const token = req.headers.authorization?.split(" ")[1];
+
+  if (!token) {
+    res.status(401);
+    throw new Error("Authorization token not found");
+  }
+
+  try {
+    // Blacklist the token by adding it to the invalidatedTokens list
+    // Alternatively, you can remove the token from the client-side storage or perform any other necessary operations
+    const decoded = jwt.decode(token);
+    const user = await User.findById(decoded.user.id);
+
+    if (user) {
+      user.invalidatedTokens.push(token);
+      await user.save();
+    }
+
+    res.status(200).json({ message: "User logged out successfully" });
+  } catch (error) {
+    res.status(500);
+    throw new Error("Error logging out the user");
+  }
+  
 })
 
 
 
 
-module.exports={ registerUser,loginUser,currentUser }
+module.exports={ registerUser,loginUser,currentUser,logOut }

@@ -7,15 +7,15 @@ const contactSchema =mongoose.Schema({
        required:true,
        ref:"user"
     },
-    name:{
+    title:{
         type:String,
         require:[true,"Please add the contact name ."]
     },
-    email:{
+    category:{
         type:String,
         require:[true,"Please add the contact email adress ."]
     },
-    phone:{
+    description:{
         type:String,
         require:[true,"Please add the contact phone number ."]
     },
