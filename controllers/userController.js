@@ -84,6 +84,77 @@ const currentUser =asyncHandler(async (req,res)=>{
 })
 
 
+//@desc update user
+//@route POST /api/user/updateprofile
+//@access private
+
+
+const updateProfile =asyncHandler(async (req,res)=>{
+    const { username, email } = req.body;
+  
+    // Find the user by ID
+    const user = await User.findById(req.user.id);
+  
+    if (!user) {
+      res.status(404);
+      throw new Error("User not found");
+    }
+  
+    // Update the user's username and email
+    if (username) user.username = username;
+    if (email) user.email = email;
+  
+    await user.save();
+  
+    res.status(200).json({
+      success: true,
+      message: "Profile updated successfully",
+      user: {
+        _id: user._id,
+        username: user.username,
+        email: user.email,
+      },
+    });
+})
+
+
+
+//@desc update user password
+//@route POST /api/user/updatepassword
+//@access private
+
+
+const changePassword =asyncHandler(async (req,res)=>{
+    const { currentPassword, newPassword } = req.body;
+  
+  // Find the user by ID
+  const user = await User.findById(req.user.id);
+
+  if (!user) {
+    res.status(404);
+    throw new Error("User not found");
+  }
+
+  // Compare the current password with the one stored in the database
+  const isMatch = await bcrypt.compare(currentPassword, user.password);
+
+  if (!isMatch) {
+    res.status(400);
+    throw new Error("Invalid current password");
+  }
+
+  // Hash the new password
+  const hashedPassword = await bcrypt.hash(newPassword, 10);
+
+  // Update the user's password
+  user.password = hashedPassword;
+  await user.save();
+
+  res.json({ message: "Password updated successfully" });
+
+})
+
+
 //@desc Logout user
 //@route POST /api/user/logout
 //@access private
@@ -119,4 +190,4 @@ const logOut =asyncHandler(async (req,res)=>{
 
 
 
-module.exports={ registerUser,loginUser,currentUser,logOut }
+module.exports={ registerUser,loginUser,currentUser,logOut,updateProfile,changePassword }
