@@ -1,8 +1,9 @@
 const asyncHandler=require("express-async-handler");
 const User = require("../models/userModel");
 const bcrypt = require("bcrypt");
-const jwt=require("jsonwebtoken")
-
+const jwt=require("jsonwebtoken");
+const  getDataUri  = require("../utils/features");
+const cloudinary =require("cloudinary")
 //@desc Register user
 //@route POST /api/user/register
 //@access public
@@ -19,10 +20,22 @@ const registerUser =asyncHandler(async (req,res)=>{
         res.status(400);
         throw new Error("User already register");
      }
+     let avatar=undefined;
+     if(req.file){
+          const file = getDataUri(req.file);
+        //cloudinary
+        const myCloud=await cloudinary.v2.uploader.upload(file.content)
+        avatar={
+          public_id:myCloud.public_id,
+          url:myCloud.secure_url
+        }
+     }
+   
      //Hash Password 
     const hashedPassword=await bcrypt.hash(password,10);
     console.log(hashedPassword);
     const user= await User.create({
+        avatar,
         username,
         email,
         password:hashedPassword
@@ -85,7 +98,7 @@ const currentUser =asyncHandler(async (req,res)=>{
 
 
 //@desc update user
-//@route POST /api/user/updateprofile
+//@route PUT /api/user/updateprofile
 //@access private
 
 
@@ -120,7 +133,7 @@ const updateProfile =asyncHandler(async (req,res)=>{
 
 
 //@desc update user password
-//@route POST /api/user/updatepassword
+//@route PUT /api/user/updatepassword
 //@access private
 
 
@@ -189,5 +202,30 @@ const logOut =asyncHandler(async (req,res)=>{
 
 
 
+//@desc pic user
+//@route PUT /api/user/updatepic
+//@access private
 
-module.exports={ registerUser,loginUser,currentUser,logOut,updateProfile,changePassword }
+
+const updatePic =asyncHandler(async (req,res)=>{
+    const user=await User.findById(req.user.id);
+
+   
+      const file = getDataUri(req.file);
+      await cloudinary.v2.uploader.destroy(user.avatar.public_id);
+    //cloudinary
+    const myCloud=await cloudinary.v2.uploader.upload(file.content);
+    user.avatar={
+      public_id:myCloud.public_id,
+      url:myCloud.secure_url
+    }
+    await user.save()
+    console.log(user)
+    res.json({
+      success:true,
+      message:"Avatar Updated successfully",
+    });
+})
+
+
+module.exports={ registerUser,loginUser,currentUser,logOut,updateProfile,changePassword,updatePic }

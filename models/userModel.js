@@ -14,6 +14,11 @@ const userSchema=mongoose.Schema({
         type:String,
         required:[true,"Please add user password"],
     },
+    avatar:{
+        public_id:String,
+        url:String
+        
+    },
     invalidatedTokens: {
         type: [String],
         default: [],
