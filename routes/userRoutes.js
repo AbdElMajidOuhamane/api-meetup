@@ -1,5 +1,5 @@
 const express =require("express");
-const { registerUser, loginUser, currentUser,logOut, updateProfile, changePassword, updatePic } = require("../controllers/userController");
+const { registerUser, loginUser, currentUser,logOut, updateProfile, changePassword, updatePic, forgetPassword, resetPassword } = require("../controllers/userController");
 const validateToken = require("../middleware/validateToken");
 const  singleUpload  = require("../middleware/multer");
 const router=express.Router()
@@ -18,4 +18,7 @@ router.put("/updateprofile",validateToken,updateProfile);
 router.put("/changepassword",validateToken,changePassword)
 
 router.put("/updatepic",validateToken,singleUpload,updatePic)
+
+router.route("/forgetpassword").post(forgetPassword).put(resetPassword);
+
 module.exports=router

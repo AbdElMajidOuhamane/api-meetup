@@ -23,10 +23,17 @@ const userSchema=mongoose.Schema({
         type: [String],
         default: [],
       },
-
+    OTP:{
+        otp: {
+            type: Number,
+          },
+          otp_expire: {
+            type: Date,
+          },
+     }
 },
 {
-    timestamps:true
+    timestamps:true,
 })
 
 module.exports= mongoose.model("User",userSchema)

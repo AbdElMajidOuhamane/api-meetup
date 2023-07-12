@@ -2,7 +2,7 @@ const asyncHandler=require("express-async-handler");
 const User = require("../models/userModel");
 const bcrypt = require("bcrypt");
 const jwt=require("jsonwebtoken");
-const  getDataUri  = require("../utils/features");
+const  {getDataUri,sendEmail, generateOTP}  = require("../utils/features");
 const cloudinary =require("cloudinary")
 //@desc Register user
 //@route POST /api/user/register
@@ -228,4 +228,75 @@ const updatePic =asyncHandler(async (req,res)=>{
 })
 
 
-module.exports={ registerUser,loginUser,currentUser,logOut,updateProfile,changePassword,updatePic }
+//@desc current user
+//@route POST /api/user/currnet
+//@access private
+const forgetPassword = asyncHandler(async (req, res, next) => {
+  const { email } = req.body;
+  const user = await User.findOne({ email });
+
+  if (!user) {
+    res.status(404);
+    throw new Error("Incorrect Email");
+  }
+
+  // Generate OTP
+  const otp = generateOTP(); // Implement a secure OTP generation method
+  const otpExpire = new Date(Date.now() + 15 * 60 * 1000);
+
+  // Update user document with OTP
+  user.OTP = {
+    otp:otp,
+    otp_expire: otpExpire,
+  };
+  console.log(user.OTP)
+  await user.save().catch((error) => {
+    console.error('Validation error:', error);
+  });
+
+  const message = `Your OTP for resetting password is ${otp}. Please use it within 15 minutes.`;
+
+  try {
+    await sendEmail("OTP for Resetting Password", user.email, message);
+  } catch (error) {
+    // Handle email sending error
+    user.otp = null;
+    await user.save();
+    return next(new Error("Failed to send email. Please try again."));
+  }
+
+  res.json({
+    success: true,
+    message: `Email sent to ${user.email}`,
+  });
+});
+
+//@desc current user
+//@route POST /api/user/currnet
+//@access private
+
+const resetPassword = asyncHandler(async (req, res) => {
+  const { otp, password } = req.body;
+  const user = await User.findOne({
+    otp,
+    otp_expire: { $gt: Date.now() },
+  });
+
+  if (!user) {
+    res.status(400).json({ error: "Incorrect OTP or it has expired" });
+    return;
+  }
+
+  user.password = password;
+  user.otp = undefined;
+  user.otp_expire = undefined;
+  await user.save();
+
+  res.json({
+    success: true,
+    message: "Password changed successfully. You can now log in.",
+  });
+});
+
+
+module.exports={ registerUser,loginUser,currentUser,logOut,updateProfile,changePassword,updatePic,forgetPassword,resetPassword }
