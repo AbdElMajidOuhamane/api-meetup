@@ -219,6 +219,7 @@ const updatePic =asyncHandler(async (req,res)=>{
       public_id:myCloud.public_id,
       url:myCloud.secure_url
     }
+    console.log(user.avatar)
     await user.save()
     console.log(user)
     res.json({
@@ -289,8 +290,10 @@ const resetPassword = asyncHandler(async (req, res) => {
   }
   const hashedPassword=await bcrypt.hash(password,10);
   user.password = hashedPassword;
-  user.otp = undefined;
-  user.otp_expire = undefined;
+  user.OTP = {
+    otp:undefined,
+    otp_expire: undefined,
+  };
   await user.save();
 
   res.json({
