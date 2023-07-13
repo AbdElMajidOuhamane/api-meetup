@@ -219,7 +219,7 @@ const updatePic =asyncHandler(async (req,res)=>{
       public_id:myCloud.public_id,
       url:myCloud.secure_url
     }
-    console.log(user.avatar)
+    // console.log
     await user.save()
     console.log(user)
     res.json({
