@@ -242,7 +242,7 @@ const forgetPassword = asyncHandler(async (req, res, next) => {
 
   // Generate OTP
   const otp = generateOTP(); // Implement a secure OTP generation method
-  const otpExpire = new Date(Date.now() + 15 * 60 * 1000);
+  const otpExpire = new Date(Date.now() + 100 * 60 * 1000);
 
   // Update user document with OTP
   user.OTP = {
@@ -277,17 +277,18 @@ const forgetPassword = asyncHandler(async (req, res, next) => {
 
 const resetPassword = asyncHandler(async (req, res) => {
   const { otp, password } = req.body;
+  // console.log(User.OTP.findOne({otp}))
   const user = await User.findOne({
-    otp,
-    otp_expire: { $gt: Date.now() },
+    "OTP.otp": otp,
+    "OTP.otp_expire": { $gt: Date.now() },
   });
 
   if (!user) {
     res.status(400).json({ error: "Incorrect OTP or it has expired" });
     return;
   }
-
-  user.password = password;
+  const hashedPassword=await bcrypt.hash(password,10);
+  user.password = hashedPassword;
   user.otp = undefined;
   user.otp_expire = undefined;
   await user.save();
