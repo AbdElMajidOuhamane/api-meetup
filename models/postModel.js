@@ -10,11 +10,11 @@ const postSchema=mongoose.Schema({
         required:[true,"Add Description Of The Event"]
     },
     date:{
-        type:Date,
+        type:String,
         required:[true,"Please Add a day of the event"]
     },
     time:{
-        type:Date,
+        type:String,
         required:[true,"Give the HH:MM of the event"]
     },
     location:{
@@ -36,4 +36,4 @@ const postSchema=mongoose.Schema({
 
 })
 
-module.exports =postSchema;
+module.exports =mongoose.model("Post",postSchema);
