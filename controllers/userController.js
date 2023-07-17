@@ -57,33 +57,37 @@ const registerUser =asyncHandler(async (req,res)=>{
 //@access public
 
 
-const loginUser =asyncHandler(async (req,res)=>{
-    const {email,password}=req.body;
-    if(!email || !password){
-        res.status(400);
-        throw new Error("All fields are mandetoly!");
-    }
-    const user=await User.findOne({email});
-    //compare password with hashed password
-    const comparePassword=await  bcrypt.compare(password,user.password)
-    if(user && comparePassword){
-        const accessToken=jwt.sign({
-            user:{
-                username:user.username,
-                email:user.email,
-                id:user.id,
-            },
-        },process.env.ACCESS_TOKEN_SECRET,
-        {expiresIn:"15m"}
-        )
-        res.status(200).json({accessToken})
-    }else{
-        res.status(400);
-        throw new Error("Email or Password is not available")
-    }
-    res.json({message:"Login The User"});
-})
-
+const loginUser = asyncHandler(async (req, res) => {
+  const { email, password } = req.body;
+  if (!email || !password) {
+    res.status(400);
+    throw new Error("All fields are mandatory!");
+  }
+  const user = await User.findOne({ email });
+  // compare password with hashed password
+  const comparePassword = await bcrypt.compare(password, user.password);
+  if (!user && !comparePassword) {
+   res.json({
+      success:true,
+      message:"Email or Password is not valid",
+    });
+  } 
+  if(user && comparePassword) {
+    const accessToken = jwt.sign(
+      {
+        user: {
+          username: user.username,
+          email: user.email,
+          id: user.id,
+        },
+      },
+      process.env.ACCESS_TOKEN_SECRET,
+      { expiresIn: "7d" }
+    );
+    res.status(200).json({ accessToken });
+    
+  }
+});
 
 //@desc current user
 //@route POST /api/user/currnet
