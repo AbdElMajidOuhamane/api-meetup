@@ -29,6 +29,11 @@ const registerUser =asyncHandler(async (req,res)=>{
           public_id:myCloud.public_id,
           url:myCloud.secure_url
         }
+     }else{
+      avatar={
+        public_id:"ac3tyeh5oopgkleqwdgt",
+        url:"https://res.cloudinary.com/dykwecezl/image/upload/v1689686554/dg3zaylu2sakmztcmztt.png"
+      }
      }
    
      //Hash Password 
