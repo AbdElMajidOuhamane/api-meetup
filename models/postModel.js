@@ -31,8 +31,8 @@ const postSchema=mongoose.Schema({
         url:String
     }],
     category:{
-        type:mongoose.Schema.Types.ObjectId,
-        ref:"Category"
+        type:String,
+        require:[true,"Please add the category post ."]
     },
     createdAt:{
         type:Date,

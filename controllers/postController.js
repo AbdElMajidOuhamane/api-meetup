@@ -7,7 +7,16 @@ const cloudinary=require("cloudinary")
 
 const getAllPosts=asyncHandler(async(req,res)=>{
     // Search && Category query :
-    const posts= await Post.find({});
+    const {keyword,category}=req.query;
+
+
+    const posts= await Post.find({
+      title:{
+        $regx:keyword?keyword:"",
+        $options:"i"
+      },
+      category:category?category:undefined
+    });
    
     res.json({
         success:true,
@@ -48,8 +57,8 @@ const getSinglePost=asyncHandler(async(req,res)=>{
 //@access private 
 const createPost = asyncHandler(async (req, res) => {
     try {
-      const { title, description, location, date, time } = req.body;
-      console.log(title, description, location, date, time);
+      const { title, description, location,category, date, time } = req.body;
+      console.log(title, description, location,category, date, time);
       let image;
   
       if (req.file) {
@@ -71,6 +80,7 @@ const createPost = asyncHandler(async (req, res) => {
         title,
         description,
         location,
+        category,
         date,
         time,
         images: [image],
